@@ -2,8 +2,8 @@ import os
 import os.path
 import sys
 import mysql.connector
-import traceback
 import logging
+import time
 from os import listdir, path
 from os.path import isfile, join
 from time import sleep
@@ -11,7 +11,10 @@ from mysql.connector import Error
 
 from properties import FROM_PATH, TO_PATH, ERROR_PATH, LOG_PATH, file_extensions
 from db_properties import host, user, passwd
+from logging_properties import LoggerSetup
 
+# Create and import logger
+log = LoggerSetup().get_logger('file_mover.log')
 
 class FilerMover():
 
@@ -19,28 +22,30 @@ class FilerMover():
         self.check_directory(TO_PATH)
         self.check_directory(ERROR_PATH)
         self.check_directory(LOG_PATH)
-        self.logger_setup()
+
 
     def move_files(self):
         file_list = [f for f in listdir(FROM_PATH) if isfile(join(FROM_PATH, f))]
         for file in file_list:
             try:
                 if file.split(".")[1] in file_extensions:
-                    print('Moving {} to {} directory.'.format(file, TO_PATH))
+                    log.info('Moving {} to {} directory.'.format(file, TO_PATH))
                     os.rename(FROM_PATH + file, TO_PATH + file)
                     sleep(0.5)
                     if path.exists(TO_PATH + file):
-                        print("{} moved succesfully.".format(file))
+                        log.info("{} moved succesfully.".format(file))
                         sleep(0.5)
                 else:
-                    print('Files with this extension are not supported. {} has been moved to {} directory.'.format(file, ERROR_PATH))
+                    log.warning('Files with this extension are not supported. {} has been moved to {} directory.'.format(file, ERROR_PATH))
                     os.rename(FROM_PATH + file, ERROR_PATH + file + 'ExtensionError')
                     sleep(0.5)
             except IndexError:
-                print('Files without extension are not supported. {} has been moved to {} directory.'.format(file, ERROR_PATH))
+                log.warning('Files without extension are not supported. {} has been moved to {} directory.'.format(file, ERROR_PATH))
                 os.rename(FROM_PATH + file, ERROR_PATH + file + 'ExtensionError')
                 sleep(0.5)
 
+
+    # Need to pass: 1 argument - database name 
     def mysql_insert(self, db):
         try:
             conn = mysql.connector.connect(
@@ -56,42 +61,28 @@ class FilerMover():
                     result = cur.fetchall()
                     print(result)
                 except Error as err:
-                    tb = traceback.format_exc()
-                    print('An error occured while executing a sql query: {}'.format(err))
-                    print(tb)
+                    log.error('An error occured while executing a sql query: {}'.format(err))
+
                 finally:
                     if conn.is_connected():
                         cur.close()
                         conn.close()
         except Error as err:
-            tb = traceback.format_exc()
             print('An error occured while connecting to database: {}'.format(err))
-            print(tb)
         
 
+    # Need to pass: 1 argument - directory path
     def check_directory(self, path):
         if not os.path.exists(path):
             os.mkdir(path)
 
-    
-    def logger_setup(self):
-        control_file = LOG_PATH + 'file_mover.log'
-        logging.basicConfig(
-            format='[%(asctime)s][%(process)s][%(levelname)s]: %(message)s',
-            level=logging.DEBUG,
-            handlers=[
-                logging.FileHandler(control_file),
-                logging.StreamHandler()
-                ]
-        )
-        logging.info('info')
 
 if __name__ == "__main__":
     mover = FilerMover()
-    # while True:
-    #     try:
-    #         mover.move_files()
-    #         sleep(5)
-    #     except KeyboardInterrupt as kex:
-    #         print(kex)
-    #         sys.exit(1)
+    while True:
+        try:
+            mover.move_files()
+            sleep(5)
+        except KeyboardInterrupt as kex:
+            print(kex)
+            sys.exit(1)
