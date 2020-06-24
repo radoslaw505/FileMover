@@ -2,19 +2,17 @@ import os
 import os.path
 import sys
 import mysql.connector
-import logging
-import time
 from os import listdir, path
 from os.path import isfile, join
 from time import sleep
 from mysql.connector import Error
 
 from properties import FROM_PATH, TO_PATH, ERROR_PATH, LOG_PATH, file_extensions
-from db_properties import host, user, passwd
+from db_properties import host, user, passwd, database
 from logging_properties import LoggerSetup
 
-# Create and import logger
-log = LoggerSetup().get_logger('file_mover.log')
+# Create logger / You need to pass a control file name (without extension)
+log = LoggerSetup().get_logger('file_mover')
 
 class FilerMover():
 
@@ -26,9 +24,17 @@ class FilerMover():
 
     def move_files(self):
         file_list = [f for f in listdir(FROM_PATH) if isfile(join(FROM_PATH, f))]
+        
         for file in file_list:
             try:
                 if file.split(".")[1] in file_extensions:
+                    filename = FROM_PATH + file
+                    result = self.read_file(filename)
+                    if result is None:
+                        log.warning('{} has nothing to process. File has been moved to {} directory.'.format(file, ERROR_PATH))
+                        os.rename(FROM_PATH + file, ERROR_PATH + file + 'EmptyFileError')
+                        continue
+                    self.mysql_insert(result)
                     log.info('Moving {} to {} directory.'.format(file, TO_PATH))
                     os.rename(FROM_PATH + file, TO_PATH + file)
                     sleep(0.5)
@@ -36,40 +42,46 @@ class FilerMover():
                         log.info("{} moved succesfully.".format(file))
                         sleep(0.5)
                 else:
-                    log.warning('Files with this extension are not supported. {} has been moved to {} directory.'.format(file, ERROR_PATH))
+                    log.warning('{} Files with this extension are not supported. File has been moved to {} directory.'.format(file, ERROR_PATH))
                     os.rename(FROM_PATH + file, ERROR_PATH + file + 'ExtensionError')
                     sleep(0.5)
             except IndexError:
-                log.warning('Files without extension are not supported. {} has been moved to {} directory.'.format(file, ERROR_PATH))
+                log.warning('{} Files without extension are not supported. File has been moved to {} directory.'.format(file, ERROR_PATH))
                 os.rename(FROM_PATH + file, ERROR_PATH + file + 'ExtensionError')
                 sleep(0.5)
 
 
-    # Need to pass: 1 argument - database name 
-    def mysql_insert(self, db):
+    # Need to pass: 1 argument - input for insert
+    def mysql_insert(self, result):
         try:
             conn = mysql.connector.connect(
                 host=host,
                 user=user,
                 passwd=passwd,
-                database=db
+                database=database
             )
             if conn.is_connected():
                 try:
                     cur = conn.cursor()
-                    cur.execute('SHOW TABLES')
-                    result = cur.fetchall()
-                    print(result)
+                    sql = "INSERT INTO employees2 (first_name, last_name) VALUES (%s, %s)"
+                    val = result
+                    num_records = sum(1 for line in result)
+                    if num_records > 2:
+                        cur.executemany(sql, val)
+                    else:
+                        cur.execute(sql, val)
+                    conn.commit()
+                    log.info('{} record inserted.'.format(cur.rowcount))
                 except Error as err:
                     log.error('An error occured while executing a sql query: {}.'.format(err), exc_info=True)
-
-
                 finally:
                     if conn.is_connected():
                         cur.close()
                         conn.close()
         except Error as err:
             log.error('An error occured while connecting to database: {}'.format(err), exc_info=True)
+            result=[]
+            return result
         
 
     # Need to pass: 1 argument - directory path
@@ -77,6 +89,29 @@ class FilerMover():
         if not os.path.exists(path):
             os.mkdir(path)
 
+    
+    # Need to pass: 1 argument - file path
+    def read_file(self, file):
+        result=[]
+        try:
+            num_lines = sum(1 for line in open(file))
+            if num_lines > 1:
+                with open(file) as f:
+                    for line in f:
+                        line = line.split(',')
+                        line[1] = line[1].rstrip()
+                        line = tuple(line)
+                        result.append(line)
+                return result
+            elif num_lines == 0:
+                pass
+            else:
+                with open(file) as f:
+                    for line in f:
+                        result = tuple(line.split(','))
+                return result
+        except FileNotFoundError as fnerr:
+            log.error('An error occured while reading a file: {}'.format(fnerr), exc_info=True)
 
 if __name__ == "__main__":
     mover = FilerMover()
@@ -85,4 +120,5 @@ if __name__ == "__main__":
             mover.move_files()
             sleep(5)
         except Exception as ex:
-            log.error(exc_info=True)
+            log.error('An error occured while executing a move_files() method.', exc_info=True)
+            sys.exit(1)
