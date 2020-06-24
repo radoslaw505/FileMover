@@ -57,7 +57,7 @@ class FilerMover():
             if conn.is_connected():
                 try:
                     cur = conn.cursor()
-                    cur.execute('SHOW TABLS')
+                    cur.execute('SHOW TABLES')
                     result = cur.fetchall()
                     print(result)
                 except Error as err:
