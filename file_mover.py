@@ -57,18 +57,19 @@ class FilerMover():
             if conn.is_connected():
                 try:
                     cur = conn.cursor()
-                    cur.execute('SHOW TABLES')
+                    cur.execute('SHOW TABLS')
                     result = cur.fetchall()
                     print(result)
                 except Error as err:
-                    log.error('An error occured while executing a sql query: {}'.format(err))
+                    log.error('An error occured while executing a sql query: {}.'.format(err), exc_info=True)
+
 
                 finally:
                     if conn.is_connected():
                         cur.close()
                         conn.close()
         except Error as err:
-            print('An error occured while connecting to database: {}'.format(err))
+            log.error('An error occured while connecting to database: {}'.format(err), exc_info=True)
         
 
     # Need to pass: 1 argument - directory path
@@ -83,6 +84,5 @@ if __name__ == "__main__":
         try:
             mover.move_files()
             sleep(5)
-        except KeyboardInterrupt as kex:
-            print(kex)
-            sys.exit(1)
+        except Exception as ex:
+            log.error(exc_info=True)
