@@ -1,0 +1,6 @@
+user = 'test'
+passwd = 'test'
+host = 'localhost'
+port = 1521
+sid = 'orcl'
+encoding = 'UTF-8'
