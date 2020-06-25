@@ -2,13 +2,15 @@ import os
 import os.path
 import sys
 import mysql.connector
+import cx_Oracle
 from os import listdir, path
 from os.path import isfile, join
 from time import sleep
 from mysql.connector import Error
 
 from properties import FROM_PATH, TO_PATH, ERROR_PATH, LOG_PATH, file_extensions
-from db_properties import host, user, passwd, database
+# from db_properties import host, user, passwd, database
+from oracle_config import user, passwd, host, port, sid
 from logging_properties import LoggerSetup
 
 # Create logger / You need to pass a control file name (without extension)
@@ -19,7 +21,6 @@ class FilerMover():
     def __init__(self):
         self.check_directory(TO_PATH)
         self.check_directory(ERROR_PATH)
-        self.check_directory(LOG_PATH)
 
 
     def move_files(self):
@@ -34,7 +35,8 @@ class FilerMover():
                         log.warning('{} has nothing to process. File has been moved to {} directory.'.format(file, ERROR_PATH))
                         os.rename(FROM_PATH + file, ERROR_PATH + file + 'EmptyFileError')
                         continue
-                    self.mysql_insert(result)
+                    # self.mysql_insert(result)
+                    self.oracle_insert(result)
                     log.info('Moving {} to {} directory.'.format(file, TO_PATH))
                     os.rename(FROM_PATH + file, TO_PATH + file)
                     sleep(0.5)
@@ -83,6 +85,13 @@ class FilerMover():
             result=[]
             return result
         
+    def oracle_insert(self):
+        dsn = cx_Oracle.makedsn(host, port, sid)
+        conn = cx_Oracle.connect(user = user, password = passwd, dsn = dsn)
+        cur = conn.cursor()
+        # conn = cx_Oracle.connect(user, passwd, host, encoding = encoding)
+        print(conn.version)
+        conn.close()
 
     # Need to pass: 1 argument - directory path
     def check_directory(self, path):
@@ -115,10 +124,10 @@ class FilerMover():
 
 if __name__ == "__main__":
     mover = FilerMover()
-    while True:
-        try:
-            mover.move_files()
-            sleep(5)
-        except Exception as ex:
-            log.error('An error occured while executing a move_files() method.', exc_info=True)
-            sys.exit(1)
+    # while True:
+    #     try:
+    #         mover.move_files()
+    #         sleep(5)
+    #     except Exception as ex:
+    #         log.error('An error occured while executing a move_files() method.', exc_info=True)
+    #         sys.exit(1)
