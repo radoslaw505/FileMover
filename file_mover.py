@@ -85,13 +85,30 @@ class FilerMover():
             result=[]
             return result
         
-    def oracle_insert(self):
-        dsn = cx_Oracle.makedsn(host, port, sid)
-        conn = cx_Oracle.connect(user = user, password = passwd, dsn = dsn)
-        cur = conn.cursor()
-        # conn = cx_Oracle.connect(user, passwd, host, encoding = encoding)
-        print(conn.version)
-        conn.close()
+    def oracle_insert(self, result):
+        try:
+            dsn = cx_Oracle.makedsn(host, port, sid)
+            conn = cx_Oracle.connect(user = user, password = passwd, dsn = dsn)
+            cur = conn.cursor()
+            sql = "INSERT INTO employees2 (first_name, last_name) VALUES (:1, :2)"
+            val = result
+            num_records = sum(1 for line in result)
+            if num_records > 2:
+                cur.executemany(sql, val)
+            else:
+                cur.execute(sql, val)
+            conn.commit()
+            log.info('{} record inserted.'.format(cur.rowcount))
+        except Exception as ex:
+            log.error('An error occured while connecting to database: {}'.format(ex), exc_info=True)
+            result=[]
+            return result
+        finally:
+            try:
+                cur.close()
+                conn.close()
+            except NameError as nerr:
+                pass
 
     # Need to pass: 1 argument - directory path
     def check_directory(self, path):
@@ -122,12 +139,13 @@ class FilerMover():
         except FileNotFoundError as fnerr:
             log.error('An error occured while reading a file: {}'.format(fnerr), exc_info=True)
 
+
 if __name__ == "__main__":
     mover = FilerMover()
-    # while True:
-    #     try:
-    #         mover.move_files()
-    #         sleep(5)
-    #     except Exception as ex:
-    #         log.error('An error occured while executing a move_files() method.', exc_info=True)
-    #         sys.exit(1)
+    while True:
+        try:
+            mover.move_files()
+            sleep(5)
+        except Exception as ex:
+            log.error('An error occured while executing a move_files() method.', exc_info=True)
+            sys.exit(1)
