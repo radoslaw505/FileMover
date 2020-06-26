@@ -1,16 +1,16 @@
 import os
 import os.path
 import sys
-import mysql.connector
+# import mysql.connector
 import cx_Oracle
 from os import listdir, path
 from os.path import isfile, join
 from time import sleep
-from mysql.connector import Error
+# from mysql.connector import Error
 
 from properties import FROM_PATH, TO_PATH, ERROR_PATH, LOG_PATH, file_extensions
 # from db_properties import host, user, passwd, database
-from oracle_config import user, passwd, host, port, sid
+from oracle_config import user, passwd, host, port, sid, insert_sql
 from logging_properties import LoggerSetup
 
 # Create logger / You need to pass a control file name (without extension)
@@ -34,6 +34,10 @@ class FilerMover():
                     if result is None:
                         log.warning('{} has nothing to process. File has been moved to {} directory.'.format(file, ERROR_PATH))
                         os.rename(FROM_PATH + file, ERROR_PATH + file + 'EmptyFileError')
+                        continue
+                    if isinstance(result, tuple) and sum(1 for rec in result) != 2:
+                        log.warning("{} has bad format, and can't be process. File has been moved to {} directory.".format(file, ERROR_PATH))
+                        os.rename(FROM_PATH + file, ERROR_PATH + file + 'BadFormatError')
                         continue
                     # self.mysql_insert(result)
                     self.oracle_insert(result)
@@ -66,12 +70,12 @@ class FilerMover():
                 try:
                     cur = conn.cursor()
                     sql = "INSERT INTO employees2 (first_name, last_name) VALUES (%s, %s)"
-                    val = result
-                    num_records = sum(1 for line in result)
-                    if num_records > 2:
-                        cur.executemany(sql, val)
+                    if isinstance(result, list):
+                        cur.executemany(sql, result)
+                    elif isinstance(result, tuple):
+                        cur.execute(sql, result)
                     else:
-                        cur.execute(sql, val)
+                        log.warning('Bad format for request.')
                     conn.commit()
                     log.info('{} record inserted.'.format(cur.rowcount))
                 except Error as err:
@@ -88,15 +92,19 @@ class FilerMover():
     def oracle_insert(self, result):
         try:
             dsn = cx_Oracle.makedsn(host, port, sid)
-            conn = cx_Oracle.connect(user = user, password = passwd, dsn = dsn)
+            conn = cx_Oracle.connect(
+                user = user,
+                password = passwd, 
+                dsn = dsn
+            )
             cur = conn.cursor()
-            sql = "INSERT INTO employees2 (first_name, last_name) VALUES (:1, :2)"
-            val = result
-            num_records = sum(1 for line in result)
-            if num_records > 2:
-                cur.executemany(sql, val)
+            sql = insert_sql
+            if isinstance(result, list):
+                cur.executemany(sql, result)
+            elif isinstance(result, tuple):
+                cur.execute(sql, result)
             else:
-                cur.execute(sql, val)
+                log.warning('Bad format for request.')
             conn.commit()
             log.info('{} record inserted.'.format(cur.rowcount))
         except Exception as ex:
@@ -126,8 +134,11 @@ class FilerMover():
                     for line in f:
                         line = line.split(',')
                         line[1] = line[1].rstrip()
-                        line = tuple(line)
-                        result.append(line)
+                        if line is None:
+                            continue
+                        else:
+                            line = tuple(line)
+                            result.append(line)
                 return result
             elif num_lines == 0:
                 pass
