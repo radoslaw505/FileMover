@@ -10,7 +10,7 @@ from time import sleep
 
 from properties import FROM_PATH, TO_PATH, ERROR_PATH, LOG_PATH, file_extensions
 # from db_properties import host, user, passwd, database
-from oracle_config import user, passwd, host, port, sid, insert_sql
+from oracle_config import user, passwd, host, port, sid, insert_sql, val_num
 from logging_properties import LoggerSetup
 
 # Create logger / You need to pass a control file name (without extension)
@@ -35,7 +35,8 @@ class FilerMover():
                         log.warning('{} has nothing to process. File has been moved to {} directory.'.format(file, ERROR_PATH))
                         os.rename(FROM_PATH + file, ERROR_PATH + file + 'EmptyFileError')
                         continue
-                    if isinstance(result, tuple) and sum(1 for rec in result) != 2:
+                    elif isinstance(result, tuple) and sum(1 for rec in result) != val_num \
+                        or isinstance(result, list) and (rec for rec in result if result[rec] != val_num):
                         log.warning("{} has bad format, and can't be process. File has been moved to {} directory.".format(file, ERROR_PATH))
                         os.rename(FROM_PATH + file, ERROR_PATH + file + 'BadFormatError')
                         continue
