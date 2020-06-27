@@ -8,7 +8,7 @@ from os.path import isfile, join
 from time import sleep
 # from mysql.connector import Error
 
-from properties import FROM_PATH, TO_PATH, ERROR_PATH, LOG_PATH, file_extensions
+from properties import FROM_PATH, TO_PATH, ERROR_PATH, LOG_PATH, file_extensions, file_delimiter
 # from db_properties import host, user, passwd, database
 from oracle_config import user, passwd, host, port, sid, insert_sql, val_num
 from logging_properties import LoggerSetup
@@ -30,16 +30,22 @@ class FilerMover():
             try:
                 if file.split(".")[1] in file_extensions:
                     filename = FROM_PATH + file
-                    result = self.read_file(filename)
+                    result = self.read_file(filename, file_delimiter)
                     if result is None:
                         log.warning('{} has nothing to process. File has been moved to {} directory.'.format(file, ERROR_PATH))
                         os.rename(FROM_PATH + file, ERROR_PATH + file + 'EmptyFileError')
                         continue
-                    elif isinstance(result, tuple) and sum(1 for rec in result) != val_num \
-                        or isinstance(result, list) and (rec for rec in result if result[rec] != val_num):
+                    elif isinstance(result, tuple) and sum(1 for rec in result) != val_num:
                         log.warning("{} has bad format, and can't be process. File has been moved to {} directory.".format(file, ERROR_PATH))
                         os.rename(FROM_PATH + file, ERROR_PATH + file + 'BadFormatError')
                         continue
+                    elif isinstance(result, list):
+                        for rec in result:
+                            rec_num = sum(1 for n in rec)
+                            if rec_num != val_num:
+                                log.warning("{} has bad format, and can't be process. File has been moved to {} directory.".format(file, ERROR_PATH))
+                                os.rename(FROM_PATH + file, ERROR_PATH + file + 'BadFormatError')
+                                continue
                     # self.mysql_insert(result)
                     self.oracle_insert(result)
                     log.info('Moving {} to {} directory.'.format(file, TO_PATH))
@@ -90,6 +96,7 @@ class FilerMover():
             result=[]
             return result
         
+
     def oracle_insert(self, result):
         try:
             dsn = cx_Oracle.makedsn(host, port, sid)
@@ -119,6 +126,7 @@ class FilerMover():
             except NameError as nerr:
                 pass
 
+
     # Need to pass: 1 argument - directory path
     def check_directory(self, path):
         if not os.path.exists(path):
@@ -126,14 +134,14 @@ class FilerMover():
 
     
     # Need to pass: 1 argument - file path
-    def read_file(self, file):
+    def read_file(self, file, delimiter):
         result=[]
         try:
             num_lines = sum(1 for line in open(file))
             if num_lines > 1:
                 with open(file) as f:
                     for line in f:
-                        line = line.split(',')
+                        line = line.split(delimiter)
                         line[1] = line[1].rstrip()
                         if line is None:
                             continue
@@ -146,7 +154,9 @@ class FilerMover():
             else:
                 with open(file) as f:
                     for line in f:
-                        result = tuple(line.split(','))
+                        line = line.split(delimiter)
+                        line[1] = line[1].rstrip()
+                        result = tuple(line)
                 return result
         except FileNotFoundError as fnerr:
             log.error('An error occured while reading a file: {}'.format(fnerr), exc_info=True)
