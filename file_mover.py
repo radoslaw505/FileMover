@@ -66,6 +66,7 @@ class FilerMover():
 
     # Need to pass: 1 argument - input for insert
     def mysql_insert(self, result):
+        log.debug('Calling mysql_insert() method.')
         try:
             conn = mysql.connector.connect(
                 host=host,
@@ -86,7 +87,7 @@ class FilerMover():
                     conn.commit()
                     log.info('{} record inserted.'.format(cur.rowcount))
                 except Error as err:
-                    log.error('An error occured while executing a sql query: {}.'.format(err), exc_info=True)
+                    log.error('An error occured while executing a sql query: {}'.format(err), exc_info=True)
                 finally:
                     if conn.is_connected():
                         cur.close()
@@ -98,6 +99,7 @@ class FilerMover():
         
 
     def oracle_insert(self, result):
+        log.debug('Calling oracle_insert() method.')
         try:
             dsn = cx_Oracle.makedsn(host, port, sid)
             conn = cx_Oracle.connect(
@@ -111,8 +113,6 @@ class FilerMover():
                 cur.executemany(sql, result)
             elif isinstance(result, tuple):
                 cur.execute(sql, result)
-            else:
-                log.warning('Bad format for request.')
             conn.commit()
             log.info('{} record inserted.'.format(cur.rowcount))
         except Exception as ex:
@@ -129,12 +129,15 @@ class FilerMover():
 
     # Need to pass: 1 argument - directory path
     def check_directory(self, path):
+        log.debug('Calling check_directory() method for {}.'.format(path))
         if not os.path.exists(path):
             os.mkdir(path)
+            log.info('Directory {} created.'.format(path))
 
     
     # Need to pass: 1 argument - file path
     def read_file(self, file, delimiter):
+        log.debug('Calling read_file() method on "{}" with delimiter "{}".'.format(file.split('/')[-1], delimiter))
         result=[]
         try:
             num_lines = sum(1 for line in open(file))
