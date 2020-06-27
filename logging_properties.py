@@ -13,7 +13,7 @@ class LoggerSetup():
         control_file = LOG_PATH + ctrl_file + time.strftime("%Y%m%d-%H%M%S") + '.log'
         log = logging.getLogger('log')
         logging.basicConfig(
-            format='[%(asctime)s][%(process)-6s][%(levelname)-8s]: %(message)s',
+            format='[%(asctime)s][%(process)-6s][%(levelname)-7s]: %(message)s',
             level=logging.DEBUG,
             handlers=[
                 logging.FileHandler(control_file),
