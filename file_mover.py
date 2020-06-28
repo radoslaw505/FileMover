@@ -1,16 +1,16 @@
 import os
 import os.path
 import sys
-# import mysql.connector
+import mysql.connector
 import cx_Oracle
 from os import listdir, path
 from os.path import isfile, join
 from time import sleep
-# from mysql.connector import Error
+from mysql.connector import Error
 
 from properties import FROM_PATH, TO_PATH, ERROR_PATH, LOG_PATH, file_extensions, file_delimiter
-# from db_properties import host, user, passwd, database
-from oracle_config import user, passwd, host, port, sid, insert_sql, val_num
+from db_properties import host, user, passwd, database, mysql_query, val_num
+from oracle_config import user, passwd, host, port, sid, oracle_query, val_num
 from logging_properties import LoggerSetup
 
 # Create logger / You need to pass a control file name (without extension)
@@ -77,7 +77,7 @@ class FilerMover():
             if conn.is_connected():
                 try:
                     cur = conn.cursor()
-                    sql = "INSERT INTO employees2 (first_name, last_name) VALUES (%s, %s)"
+                    sql = mysql_query
                     if isinstance(result, list):
                         cur.executemany(sql, result)
                     elif isinstance(result, tuple):
@@ -108,7 +108,7 @@ class FilerMover():
                 dsn = dsn
             )
             cur = conn.cursor()
-            sql = insert_sql
+            sql = oracle_query
             if isinstance(result, list):
                 cur.executemany(sql, result)
             elif isinstance(result, tuple):
