@@ -1,0 +1,11 @@
+[2020-09-07 13:04:09,222][6956  ][INFO   ]: Logging has been set up. Control file: C:/Users/rados/projects/Python/FileMover/log/file_mover20200907-130409.log
+[2020-09-07 13:04:09,223][6956  ][DEBUG  ]: Calling check_directory() method for C:/Users/rados/projects/Python/FileMover/move_to/.
+[2020-09-07 13:04:09,224][6956  ][INFO   ]: Directory C:/Users/rados/projects/Python/FileMover/move_to/ created.
+[2020-09-07 13:04:09,225][6956  ][DEBUG  ]: Calling check_directory() method for C:/Users/rados/projects/Python/FileMover/error/.
+[2020-09-07 13:04:09,233][6956  ][DEBUG  ]: Calling read_file() method on "MOCK_DATA (1).csv" with delimiter ",".
+[2020-09-07 13:04:09,237][6956  ][DEBUG  ]: Calling oracle_insert() method.
+[2020-09-07 13:04:09,794][6956  ][INFO   ]: 1 record inserted.
+[2020-09-07 13:04:09,797][6956  ][INFO   ]: Moving MOCK_DATA (1).csv to C:/Users/rados/projects/Python/FileMover/move_to/ directory.
+[2020-09-07 13:04:10,304][6956  ][INFO   ]: MOCK_DATA (1).csv moved succesfully.
+[2020-09-07 13:04:10,820][6956  ][DEBUG  ]: Calling read_file() method on "MOCK_DATA copy.csv" with delimiter ",".
+[2020-09-07 13:04:16,256][6956  ][DEBUG  ]: Calling oracle_insert() method.
