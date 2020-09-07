@@ -1,3 +1,0 @@
-[2020-06-28 11:17:57,177][16628 ][INFO   ]: Logging has been set up. Control file: C:/Users/rados/projects/Python/FileMover/log/file_mover20200628-111757.log
-[2020-06-28 11:17:57,177][16628 ][DEBUG  ]: Calling check_directory() method for C:/Users/rados/projects/Python/FileMover/move_to/.
-[2020-06-28 11:17:57,186][16628 ][DEBUG  ]: Calling check_directory() method for C:/Users/rados/projects/Python/FileMover/error/.
