@@ -1,0 +1,36 @@
+[2020-06-28 10:52:36,547][7764  ][INFO   ]: Logging has been set up. Control file: C:/Users/rados/projects/Python/FileMover/log/file_mover20200628-105236.log
+[2020-06-28 10:52:36,547][7764  ][DEBUG  ]: Calling check_directory() method for C:/Users/rados/projects/Python/FileMover/move_to/.
+[2020-06-28 10:52:36,557][7764  ][INFO   ]: Directory C:/Users/rados/projects/Python/FileMover/move_to/ created.
+[2020-06-28 10:52:36,557][7764  ][DEBUG  ]: Calling check_directory() method for C:/Users/rados/projects/Python/FileMover/error/.
+[2020-06-28 10:52:36,558][7764  ][INFO   ]: Directory C:/Users/rados/projects/Python/FileMover/error/ created.
+[2020-06-28 10:52:36,560][7764  ][DEBUG  ]: Calling read_file() method on "file0.txt" with delimiter ",".
+[2020-06-28 10:52:36,560][7764  ][WARNING]: file0.txt has nothing to process. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:36,562][7764  ][WARNING]: file1 Files without extension are not supported. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:37,075][7764  ][DEBUG  ]: Calling read_file() method on "file2.csv" with delimiter ",".
+[2020-06-28 10:52:37,075][7764  ][WARNING]: file2.csv has nothing to process. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:37,084][7764  ][WARNING]: file3 Files without extension are not supported. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:37,588][7764  ][DEBUG  ]: Calling read_file() method on "file4.csv" with delimiter ",".
+[2020-06-28 10:52:37,589][7764  ][WARNING]: file4.csv has nothing to process. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:37,591][7764  ][WARNING]: file5 Files without extension are not supported. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:38,104][7764  ][WARNING]: file6.t Files with this extension are not supported. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:38,614][7764  ][WARNING]: file7 Files without extension are not supported. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:39,116][7764  ][DEBUG  ]: Calling read_file() method on "file8.txt" with delimiter ",".
+[2020-06-28 10:52:39,117][7764  ][WARNING]: file8.txt has nothing to process. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:39,119][7764  ][WARNING]: file9 Files without extension are not supported. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:39,626][7764  ][DEBUG  ]: Calling read_file() method on "MOCK_DATA (1) copy.csv" with delimiter ",".
+[2020-06-28 10:52:39,631][7764  ][WARNING]: MOCK_DATA (1) copy.csv Files without extension are not supported. File has been moved to C:/Users/rados/projects/Python/FileMover/error/ directory.
+[2020-06-28 10:52:40,148][7764  ][DEBUG  ]: Calling read_file() method on "MOCK_DATA (1).csv" with delimiter ",".
+[2020-06-28 10:52:40,166][7764  ][DEBUG  ]: Calling oracle_insert() method.
+[2020-06-28 10:52:40,936][7764  ][INFO   ]: 1 record inserted.
+[2020-06-28 10:52:40,956][7764  ][INFO   ]: Moving MOCK_DATA (1).csv to C:/Users/rados/projects/Python/FileMover/move_to/ directory.
+[2020-06-28 10:52:41,472][7764  ][INFO   ]: MOCK_DATA (1).csv moved succesfully.
+[2020-06-28 10:52:41,974][7764  ][DEBUG  ]: Calling read_file() method on "MOCK_DATA copy.csv" with delimiter ",".
+[2020-06-28 10:52:47,606][7764  ][DEBUG  ]: Calling oracle_insert() method.
+[2020-06-28 10:53:21,554][7764  ][INFO   ]: 3593604 record inserted.
+[2020-06-28 10:53:21,606][7764  ][INFO   ]: Moving MOCK_DATA copy.csv to C:/Users/rados/projects/Python/FileMover/move_to/ directory.
+[2020-06-28 10:53:22,115][7764  ][INFO   ]: MOCK_DATA copy.csv moved succesfully.
+[2020-06-28 10:53:22,626][7764  ][DEBUG  ]: Calling read_file() method on "MOCK_DATA.csv" with delimiter ",".
+[2020-06-28 10:53:22,944][7764  ][DEBUG  ]: Calling oracle_insert() method.
+[2020-06-28 10:53:22,991][7764  ][INFO   ]: 20 record inserted.
+[2020-06-28 10:53:22,993][7764  ][INFO   ]: Moving MOCK_DATA.csv to C:/Users/rados/projects/Python/FileMover/move_to/ directory.
+[2020-06-28 10:53:23,515][7764  ][INFO   ]: MOCK_DATA.csv moved succesfully.
